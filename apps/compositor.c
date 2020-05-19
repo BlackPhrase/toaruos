@@ -2687,6 +2687,9 @@ int main(int argc, char * argv[]) {
 								}
 							}
 							break;
+						case YUTANI_SPECIAL_REQUEST_MINIMIZE:
+							// TODO
+							break;
 						case YUTANI_SPECIAL_REQUEST_PLEASE_CLOSE:
 							if (w) {
 								yutani_msg_buildx_window_close_alloc(response);

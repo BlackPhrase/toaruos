@@ -57,6 +57,7 @@ extern int decor_handle_event(yutani_t * yctx, yutani_msg_t * m);
 extern void decor_set_close_callback(void (*callback)(yutani_window_t *));
 extern void decor_set_resize_callback(void (*callback)(yutani_window_t *));
 extern void decor_set_maximize_callback(void (*callback)(yutani_window_t *));
+extern void decor_set_minimize_callback(void (*callback)(yutani_window_t *));
 extern yutani_window_t * decor_show_default_menu(yutani_window_t * window, int y, int x);
 
 /* Responses from handle_event */
@@ -65,12 +66,14 @@ extern yutani_window_t * decor_show_default_menu(yutani_window_t * window, int y
 #define DECOR_RESIZE    3 /* Resize button */
 #define DECOR_MAXIMIZE  4
 #define DECOR_RIGHT     5
+#define DECOR_MINIMIZE  6
 
 #define DECOR_ACTIVE   0
 #define DECOR_INACTIVE 1
 
 #define DECOR_FLAG_DECORATED   (1 << 0)
 #define DECOR_FLAG_NO_MAXIMIZE (1 << 1)
+//#define DECOR_FLAG_NO_MINIMIZE (1 << 2)
 #define DECOR_FLAG_TILED       (0xF << 2)
 #define DECOR_FLAG_TILE_LEFT   (0x1 << 2)
 #define DECOR_FLAG_TILE_RIGHT  (0x2 << 2)

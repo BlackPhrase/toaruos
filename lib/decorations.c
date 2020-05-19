@@ -31,6 +31,7 @@ int  (*decor_get_bounds)(yutani_window_t *, struct decor_bounds *) = NULL;
 static void (*callback_close)(yutani_window_t *) = NULL;
 static void (*callback_resize)(yutani_window_t *) = NULL;
 static void (*callback_maximize)(yutani_window_t *) = NULL;
+static void (*callback_minimize)(yutani_window_t *) = NULL;
 
 static int close_enough(struct yutani_msg_window_mouse_event * me) {
 	return (me->command == YUTANI_MOUSE_EVENT_RAISE &&
@@ -122,6 +123,14 @@ static void _decor_maximize(yutani_t * yctx, yutani_window_t * window) {
 	}
 }
 
+static void _decor_minimize(yutani_t * yctx, yutani_window_t * window) {
+	if (callback_minimize) {
+		callback_minimize(window);
+	} else {
+		yutani_special_request(yctx, window, YUTANI_SPECIAL_REQUEST_MINIMIZE);
+	}
+}
+
 static yutani_window_t * _decor_menu_owner_window = NULL;
 static struct MenuList * _decor_menu = NULL;
 
@@ -137,6 +146,13 @@ static void _decor_start_maximize(struct MenuEntry * self) {
 		return;
 	_decor_maximize(_decor_menu_owner_window->ctx, _decor_menu_owner_window);
 	yutani_focus_window(_decor_menu_owner_window->ctx, _decor_menu_owner_window->wid);
+}
+
+static void _decor_start_minimize(struct MenuEntry * self) {
+	if (!_decor_menu_owner_window)
+		return;
+	_decor_minimize(_decor_menu_owner_window->ctx, _decor_menu_owner_window);
+	yutani_focus_window(_decor_menu_owner_window->ctx, _decor_menu_owner_window->wid); // TODO
 }
 
 static void _decor_close(struct MenuEntry * self) {
@@ -164,6 +180,7 @@ void init_decorations() {
 
 	_decor_menu = menu_create();
 	menu_insert(_decor_menu, menu_create_normal(NULL, NULL, "Maximize", _decor_start_maximize));
+	menu_insert(_decor_menu, menu_create_normal(NULL, NULL, "Minimize", _decor_start_minimize));
 	menu_insert(_decor_menu, menu_create_normal(NULL, NULL, "Move", _decor_start_move));
 	menu_insert(_decor_menu, menu_create_separator());
 	menu_insert(_decor_menu, menu_create_normal(NULL, NULL, "Close", _decor_close));
@@ -205,6 +222,10 @@ void decor_set_resize_callback(void (*callback)(yutani_window_t *)) {
 
 void decor_set_maximize_callback(void (*callback)(yutani_window_t *)) {
 	callback_maximize = callback;
+}
+
+void decor_set_minimize_callback(void (*callback)(yutani_window_t *)) {
+	callback_minimize = callback;
 }
 
 static int within_decors(yutani_window_t * window, int x, int y) {
@@ -324,6 +345,9 @@ int decor_handle_event(yutani_t * yctx, yutani_msg_t * m) {
 									break;
 								case DECOR_MAXIMIZE:
 									_decor_maximize(yctx, window);
+									break;
+								case DECOR_MINIMIZE:
+									_decor_minimize(yctx, window);
 									break;
 								default:
 									break;
